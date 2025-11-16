@@ -12,12 +12,11 @@
 <header class="site-header">
     <div>
         <h1 th:text="#{card.heading}">Membership Card</h1>
-        <p class="subtitle" th:text="#{card.subtitle}">Digital identity</p>
     </div>
     <nav>
         <a th:href="@{/card(lang='en')}" th:text="#{card.language.en}">English</a>
         <a th:href="@{/card(lang='zh')}" th:text="#{card.language.zh}">中文</a>
-        <a th:href="@{/card(lang='de_CH')}" th:text="#{card.language.de}">Deutsch</a>
+        <a th:href="@{/card(lang='de_CH')}" th:text="#{card.language.de}">Deutsch (CH)</a>
         <span> | </span>
         <a th:href="@{/logout}" th:text="#{card.logout}">Logout</a>
     </nav>
@@ -40,6 +39,13 @@
         </div>
     </section>
 
+    <section class="qr-card">
+        <h2 th:text="#{card.qr.title}">QR Code</h2>
+        <img id="member-qr" src="/card/qr" alt="Membership QR code"
+             th:alt="#{card.qr.alt}">
+        <small th:text="#{card.qr.note}">Regenerates every 30 seconds.</small>
+    </section>
+
     <section class="profile-card">
         <h2 th:text="#{card.degree.formTitle}">Update Degree</h2>
         <form th:action="@{/card/degree}" th:object="${degreeForm}" method="post">
@@ -52,18 +58,10 @@
             <button type="submit" th:text="#{card.degree.submit}">Save</button>
         </form>
     </section>
-
-    <section class="qr-card">
-        <h2 th:text="#{card.qr.title}">QR Code</h2>
-        <img id="member-qr" src="/card/qr" alt="Membership QR code"
-             th:alt="#{card.qr.alt}">
-        <p th:text="#{card.qr.caption}">Scan with verifier</p>
-        <small th:text="#{card.qr.note}">Regenerates every 30 seconds.</small>
-    </section>
 </main>
 
 <footer>
-    <p th:text="#{card.footer}">Powered by authentik & Spring Boot</p>
+    <p>Built with ♥️ by ACSSZ</p>
 </footer>
 
 <script src="/js/card.js" defer></script>
