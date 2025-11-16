@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f172a">
+    <title th:text="#{app.title}">Membership Card</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body th:with="locale=${#locale}">
+<header class="site-header">
+    <div>
+        <h1 th:text="#{card.heading}">Membership Card</h1>
+        <p class="subtitle" th:text="#{card.subtitle}">Digital identity</p>
+    </div>
+    <nav>
+        <a th:href="@{/card(lang='en')}" th:text="#{card.language.en}">English</a>
+        <a th:href="@{/card(lang='zh')}" th:text="#{card.language.zh}">中文</a>
+        <a th:href="@{/card(lang='de_CH')}" th:text="#{card.language.de}">Deutsch</a>
+        <span> | </span>
+        <a th:href="@{/logout}" th:text="#{card.logout}">Logout</a>
+    </nav>
+</header>
+
+<main>
+    <section class="profile-card">
+        <h2 th:text="#{card.profile.title}">Member</h2>
+        <p>
+            <span th:text="#{card.displayName}">Name</span>:
+            <strong th:text="${member.displayName}">Display Name</strong>
+        </p>
+        <p>
+            <span th:text="#{card.degree.current}">Degree</span>:
+            <strong th:text="${member.degree} ?: #{card.degree.none}">Unknown</strong>
+        </p>
+
+        <div class="flash" th:if="${messageKey}">
+            <p th:text="#{${messageKey}}">Saved</p>
+        </div>
+    </section>
+
+    <section class="profile-card">
+        <h2 th:text="#{card.degree.formTitle}">Update Degree</h2>
+        <form th:action="@{/card/degree}" th:object="${degreeForm}" method="post">
+            <label for="degree" th:text="#{card.degree.label}">Degree</label>
+            <input type="text" id="degree" name="degree"
+                   th:placeholder="#{card.degree.placeholder}"
+                   th:field="*{degree}">
+            <p class="hint" th:text="#{card.degree.help}">Describe the education or profession.</p>
+            <p class="error" th:if="${#fields.hasErrors('degree')}" th:errors="*{degree}">Invalid</p>
+            <button type="submit" th:text="#{card.degree.submit}">Save</button>
+        </form>
+    </section>
+
+    <section class="qr-card">
+        <h2 th:text="#{card.qr.title}">QR Code</h2>
+        <img id="member-qr" src="/card/qr" alt="Membership QR code"
+             th:alt="#{card.qr.alt}">
+        <p th:text="#{card.qr.caption}">Scan with verifier</p>
+        <small th:text="#{card.qr.note}">Regenerates every 30 seconds.</small>
+    </section>
+</main>
+
+<footer>
+    <p th:text="#{card.footer}">Powered by authentik & Spring Boot</p>
+</footer>
+
+<script src="/js/card.js" defer></script>
+<script src="/js/pwa.js" defer></script>
+</body>
+</html>

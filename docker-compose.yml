@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: membership
+      POSTGRES_USER: membership
+      POSTGRES_PASSWORD: membership
+    ports:
+      - "5432:5432"
+    volumes:
+      - membership-db:/var/lib/postgresql/data
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/membership
+      SPRING_DATASOURCE_USERNAME: membership
+      SPRING_DATASOURCE_PASSWORD: membership
+      AUTHENTIK_ISSUER: ${AUTHENTIK_ISSUER:-https://auth.acssz.org}
+      AUTHENTIK_CLIENT_ID: ${AUTHENTIK_CLIENT_ID:-membership-card}
+      AUTHENTIK_CLIENT_SECRET: ${AUTHENTIK_CLIENT_SECRET:-change-me}
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+
+volumes:
+  membership-db:

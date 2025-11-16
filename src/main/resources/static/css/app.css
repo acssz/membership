@@ -1,0 +1,87 @@
+:root {
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #0f172a;
+    background-color: #f8fafc;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f8fafc;
+}
+
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    background-color: #0f172a;
+    color: #f8fafc;
+}
+
+.site-header a {
+    color: #f8fafc;
+    margin-left: 0.5rem;
+    text-decoration: none;
+}
+
+main {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+}
+
+.profile-card,
+.qr-card {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+}
+
+.qr-card img {
+    width: 220px;
+    height: 220px;
+    display: block;
+    margin: 1rem auto;
+}
+
+form input[type="text"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #cbd5f5;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+form button {
+    background-color: #0f172a;
+    color: #f8fafc;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.6rem 1.5rem;
+    cursor: pointer;
+}
+
+.flash {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-left: 4px solid #10b981;
+    background-color: #ecfdf5;
+}
+
+.error {
+    color: #dc2626;
+}
+
+.hint {
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem;
+    color: #475569;
+}
