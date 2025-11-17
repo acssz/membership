@@ -6,62 +6,146 @@
     <meta name="theme-color" content="#0f172a">
     <title th:text="#{app.title}">Membership Card</title>
     <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
 <body th:with="locale=${#locale}">
 <header class="site-header">
     <div>
         <h1 th:text="#{card.heading}">Membership Card</h1>
     </div>
-    <nav>
-        <a th:href="@{/card(lang='en')}" th:text="#{card.language.en}">English</a>
-        <a th:href="@{/card(lang='zh')}" th:text="#{card.language.zh}">中文</a>
-        <a th:href="@{/card(lang='de_CH')}" th:text="#{card.language.de}">Deutsch (CH)</a>
-        <span> | </span>
-        <a th:href="@{/logout}" th:text="#{card.logout}">Logout</a>
+    <nav th:with="navPath=${currentPath != null ? currentPath : '/'}">
+        <a th:href="@{${navPath}(lang='zh')}" th:text="#{card.language.zh}">中文</a>
+        <a th:href="@{${navPath}(lang='en')}" th:text="#{card.language.en}">English</a>
+        <a th:href="@{${navPath}(lang='de_CH')}" th:text="#{card.language.de}">Deutsch (CH)</a>
     </nav>
 </header>
 
-<main>
-    <section class="profile-card">
-        <h2 th:text="#{card.profile.title}">Member</h2>
-        <p>
-            <span th:text="#{card.displayName}">Name</span>:
-            <strong th:text="${member.displayName}">Display Name</strong>
+<main th:with="studentVerified=${verificationStatus.required and verificationStatus.active}"
+      th:class="'card-stage ' + (studentVerified ? 'card-stage--verified' : 'card-stage--pending')">
+    <section class="qr-focus">
+        <p class="verification-pill"
+           th:classappend="${studentVerified} ? ' verification-pill--ok' : ' verification-pill--warn'">
+            <span th:text="${studentVerified} ? #{card.verification.badge.verified} : #{card.verification.badge.pending}">
+                Pending
+            </span>
         </p>
-        <p>
-            <span th:text="#{card.degree.current}">Degree</span>:
-            <strong th:text="${member.degree} ?: #{card.degree.none}">Unknown</strong>
-        </p>
-
-        <div class="flash" th:if="${messageKey}">
-            <p th:text="#{${messageKey}}">Saved</p>
+        <div class="qr-focus__image">
+            <img id="member-qr" src="/qr" alt="Membership QR code"
+                 th:alt="#{card.qr.alt}">
         </div>
-    </section>
-
-    <section class="qr-card">
-        <h2 th:text="#{card.qr.title}">QR Code</h2>
-        <img id="member-qr" src="/card/qr" alt="Membership QR code"
-             th:alt="#{card.qr.alt}">
         <small th:text="#{card.qr.note}">Regenerates every 30 seconds.</small>
     </section>
 
-    <section class="profile-card">
-        <h2 th:text="#{card.degree.formTitle}">Update Degree</h2>
-        <form th:action="@{/card/degree}" th:object="${degreeForm}" method="post">
-            <label for="degree" th:text="#{card.degree.label}">Degree</label>
-            <input type="text" id="degree" name="degree"
-                   th:placeholder="#{card.degree.placeholder}"
-                   th:field="*{degree}">
-            <p class="hint" th:text="#{card.degree.help}">Describe the education or profession.</p>
-            <p class="error" th:if="${#fields.hasErrors('degree')}" th:errors="*{degree}">Invalid</p>
-            <button type="submit" th:text="#{card.degree.submit}">Save</button>
-        </form>
+    <section class="profile-stack">
+        <div class="flash" th:if="${messageKey}">
+            <p th:text="#{${messageKey}}">Saved</p>
+        </div>
+
+        <article class="identity-block">
+            <div class="identity-block__header">
+                <h2 th:text="#{card.identity.title}">Identity</h2>
+                <button type="button"
+                        class="ghost-button secret-toggle"
+                        data-secret-toggle
+                        aria-pressed="false"
+                        th:attr="data-show-label=#{card.identity.show},data-hide-label=#{card.identity.hide},aria-label=#{card.identity.toggle.aria}">
+                    <i class="fa-solid fa-eye" data-secret-icon aria-hidden="true"></i>
+                    <span class="sr-only" data-secret-label th:text="#{card.identity.show}">Show</span>
+                </button>
+            </div>
+            <div class="identity-detail">
+                <span th:text="#{card.displayName}">Name</span>
+                <strong class="secret"
+                        data-secret
+                        th:attr="data-secret-value=${member.displayName},data-mask-value=#{card.identity.hiddenValue}"
+                        th:text="#{card.identity.hiddenValue}">
+                    ⋆⋆⋆⋆⋆
+                </strong>
+            </div>
+            <div class="identity-detail" th:if="${member.email}">
+                <span th:text="#{card.identity.email}">Student email</span>
+                <strong class="secret"
+                        data-secret
+                        th:attr="data-secret-value=${member.email},data-mask-value=#{card.identity.hiddenValue}"
+                        th:text="#{card.identity.hiddenValue}">
+                    ⋆⋆⋆⋆⋆
+                </strong>
+            </div>
+            <div class="identity-detail" th:unless="${member.email}">
+                <span th:text="#{card.identity.email}">Student email</span>
+                <strong th:text="#{card.identity.email.none}">No email</strong>
+            </div>
+        </article>
+
+        <article class="status-block">
+            <h2 th:text="#{card.profile.title}">Member</h2>
+            <div class="status-row">
+                <span th:text="#{card.occupation.label}">Occupation</span>
+                <strong th:text="${member.occupationType != null
+                        ? #messages.msg('verify.occupation.' + member.occupationType)
+                        : #messages.msg('card.occupation.none')}">
+                    Unknown
+                </strong>
+            </div>
+            <div class="status-row"
+                 th:if="${member.occupationType == T(org.acssz.membership.member.OccupationType).STUDENT}">
+                <span th:text="#{verify.form.studentDegree.label}">Degree</span>
+                <strong th:text="${member.studentDegree != null
+                        ? #messages.msg('verify.studentDegree.' + member.studentDegree)
+                        : #messages.msg('card.degree.none')}">
+                    Bachelor
+                </strong>
+            </div>
+            <div class="status-row status-row--verification" th:if="${verificationStatus.required}">
+                <span th:text="#{card.verification.status.label}">Status</span>
+                <div>
+                    <strong th:text="${studentVerified} ? #{card.verification.status.verified} : #{card.verification.status.pending}">
+                        Pending
+                    </strong>
+                    <small th:if="${verificationStatus.expiresAt != null}"
+                           th:text="${#messages.msg('card.verification.status.validUntil', #temporals.format(verificationStatus.expiresAt, 'yyyy-MM-dd'))}">
+                        Valid until ...
+                    </small>
+                </div>
+            </div>
+            <div class="status-row" th:unless="${verificationStatus.required}">
+                <span th:text="#{card.verification.status.label}">Status</span>
+                <strong th:text="#{card.verification.status.notRequired}">Not required</strong>
+            </div>
+        </article>
+
+        <p class="hint" th:if="${studentVerified}"
+           th:text="${#messages.msg('card.verification.hint.active', #temporals.format(verificationStatus.expiresAt, 'yyyy-MM-dd'))}">
+            Verified until date.
+        </p>
+        <p class="error" th:if="${verificationStatus.required and !studentVerified}"
+           th:text="#{card.verification.hint.pending}">
+            Verification required.
+        </p>
+        <p class="hint" th:if="${!verificationStatus.required}"
+           th:text="#{card.verification.hint.notRequired}">
+            Verification not required.
+        </p>
+
+        <div class="actions">
+            <a class="button primary" th:href="@{/verify}" th:text="#{card.actions.manageVerification}">
+                Manage verification
+            </a>
+            <button class="button secondary" type="button" data-pwa-install hidden
+                    th:text="#{card.actions.installApp}">
+                Install app
+            </button>
+        </div>
     </section>
 </main>
 
 <footer>
-    <p>Built with ♥️ by ACSSZ</p>
+    <p>Built with ♥️ by ACSSZ · © 2025</p>
 </footer>
 
 <script src="/js/card.js" defer></script>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f172a">
+    <title th:text="#{verify.title}">Verification</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<header class="site-header">
+    <div>
+        <h1 th:text="#{verify.heading}">Identity Verification</h1>
+    </div>
+    <nav th:with="navPath=${currentPath != null ? currentPath : '/verify'}">
+        <a th:href="@{${navPath}(lang='zh')}" th:text="#{card.language.zh}">中文</a>
+        <a th:href="@{${navPath}(lang='en')}" th:text="#{card.language.en}">English</a>
+        <a th:href="@{${navPath}(lang='de_CH')}" th:text="#{card.language.de}">Deutsch (CH)</a>
+    </nav>
+</header>
+
+<main class="verify-stage">
+    <section class="verify-card" th:with="studentVerified=${verificationStatus.required and verificationStatus.active}">
+        <div class="verify-card__header">
+            <div>
+                <p class="chip" th:text="#{card.displayName} + ': ' + ${member.displayName}">Name</p>
+                <p class="chip" th:if="${member.email}"
+                   th:text="#{card.identity.email} + ': ' + ${member.email}">Email</p>
+                <p class="chip" th:unless="${member.email}"
+                   th:text="#{card.identity.email.none}">No email</p>
+            </div>
+            <a class="ghost-button" th:href="@{/}" th:text="#{verify.action.back}">Back</a>
+        </div>
+
+        <div class="verify-status" th:classappend="${studentVerified} ? ' verify-status--ok' : ' verify-status--warn'">
+            <strong th:text="${studentVerified} ? #{card.verification.status.verified} : #{card.verification.status.pending}">
+                Pending
+            </strong>
+            <p th:if="${studentVerified}"
+               th:text="${#messages.msg('card.verification.status.validUntil', #temporals.format(verificationStatus.expiresAt, 'yyyy-MM-dd'))}">
+                Valid until date
+            </p>
+            <p th:if="${verificationStatus.required and !studentVerified}"
+               th:text="#{verify.status.pendingDetail}">
+                Pending detail
+            </p>
+            <p th:if="${!verificationStatus.required}"
+               th:text="#{card.verification.hint.notRequired}">
+                Not required
+            </p>
+        </div>
+
+        <form th:action="@{/verify}" th:object="${verificationForm}" method="post" enctype="multipart/form-data">
+            <div class="form-field">
+                <label for="occupationType" th:text="#{verify.form.occupation.label}">Occupation</label>
+                <select id="occupationType" name="occupationType" th:field="*{occupationType}">
+                    <option th:each="occupation : ${occupationTypes}"
+                            th:value="${occupation}"
+                            th:text="${#messages.msgOrNull('verify.occupation.' + occupation) ?: occupation}">
+                    </option>
+                </select>
+                <p class="error" th:if="${#fields.hasErrors('occupationType')}" th:errors="*{occupationType}">Required</p>
+            </div>
+
+            <div class="form-field" data-student-only
+                 th:with="studentOccupation=${T(org.acssz.membership.member.OccupationType).STUDENT}"
+                 th:attr="data-hidden=${verificationForm.occupationType != studentOccupation}">
+                <label for="program" th:text="#{verify.form.program.label}">Degree program</label>
+                <select id="program" th:field="*{studentDegree}">
+                    <option value="" th:text="#{verify.form.program.placeholder}">Select</option>
+                    <option th:each="degree : ${studentDegrees}"
+                            th:value="${degree.name()}"
+                            th:text="${#messages.msg('verify.studentDegree.' + degree)}">
+                    </option>
+                </select>
+                <p class="hint" th:text="#{verify.form.program.hint}">Choose the active education level.</p>
+                <p class="error" th:if="${#fields.hasErrors('studentDegree')}" th:errors="*{studentDegree}">Required</p>
+            </div>
+
+            <div class="form-field" data-student-only
+                 th:with="studentOccupation=${T(org.acssz.membership.member.OccupationType).STUDENT}"
+                 th:attr="data-hidden=${verificationForm.occupationType != studentOccupation}">
+                <label for="studentIdCard" th:text="#{verify.form.studentIdCard.label}">Student ID</label>
+                <input id="studentIdCard" type="file" accept="image/*" th:field="*{studentIdCard}">
+                <p class="hint" th:text="#{verify.form.studentIdCard.hint}">Upload the latest student ID photo.</p>
+                <p class="error" th:if="${#fields.hasErrors('studentIdCard')}" th:errors="*{studentIdCard}">Required</p>
+            </div>
+
+            <p class="hint" th:text="#{verify.form.notice}">Students must refresh verification every year.</p>
+
+            <button type="submit" class="button primary" th:text="#{verify.form.submit}">Save</button>
+        </form>
+    </section>
+</main>
+
+<footer>
+    <p>Built with ♥️ by ACSSZ · © 2025</p>
+</footer>
+
+<script src="/js/verify.js" defer></script>
+</body>
+</html>

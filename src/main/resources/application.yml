@@ -27,6 +27,7 @@ spring:
             scope:
               - openid
               - profile
+              - email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
           authentik:
@@ -36,4 +37,15 @@ app:
   qr:
     token-ttl-seconds: 30
   pwa:
-    start-url: /card
+    start-url: /
+  verification:
+    student-validity: 365d
+  storage:
+    student-id:
+      enabled: ${STUDENT_ID_STORAGE_ENABLED:false}
+      bucket: ${STUDENT_ID_STORAGE_BUCKET:acssz-membership}
+      endpoint: ${STUDENT_ID_STORAGE_ENDPOINT:https://storage.googleapis.com}
+      region: ${STUDENT_ID_STORAGE_REGION:auto}
+      access-key: ${STUDENT_ID_STORAGE_ACCESS_KEY:}
+      secret-key: ${STUDENT_ID_STORAGE_SECRET_KEY:}
+      key-prefix: ${STUDENT_ID_STORAGE_PREFIX:student-id}

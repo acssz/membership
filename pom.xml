@@ -12,9 +12,10 @@
 	<artifactId>membership</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>membership</name>
-	<description>ACSSZ membership card sample</description>
+	<description>ACSSZ membership card</description>
 	<properties>
 		<java.version>17</java.version>
+		<minio.version>8.6.0</minio.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -69,6 +70,17 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.minio</groupId>
+			<artifactId>minio</artifactId>
+			<version>${minio.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.42</version>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 

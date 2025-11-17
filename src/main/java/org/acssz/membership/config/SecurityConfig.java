@@ -20,7 +20,7 @@ public class SecurityConfig {
             OidcUserService oidcUserService) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/manifest.json", "/service-worker.js", "/icons/**", "/css/**", "/js/**")
+                        .requestMatchers("/manifest.json", "/service-worker.js", "/icons/**", "/css/**", "/js/**")
                         .permitAll()
                         .requestMatchers("/api/verify").permitAll()
                         .anyRequest().authenticated())
@@ -54,6 +54,6 @@ public class SecurityConfig {
         if (displayName == null) {
             displayName = oidcUser.getSubject();
         }
-        memberService.getOrCreate(oidcUser.getSubject(), displayName);
+        memberService.getOrCreate(oidcUser.getSubject(), displayName, oidcUser.getEmail());
     }
 }

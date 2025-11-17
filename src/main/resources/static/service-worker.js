@@ -1,5 +1,5 @@
 const CACHE_NAME = "membership-card-v1";
-const OFFLINE_URLS = ["/", "/card", "/css/app.css", "/js/card.js", "/js/pwa.js", "/manifest.json"];
+const OFFLINE_URLS = ["/", "/verify", "/css/app.css", "/js/card.js", "/js/pwa.js", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -21,6 +21,25 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
     return;
   }
+
+  const acceptHeader = event.request.headers.get("accept") || "";
+  const isHtmlRequest = event.request.mode === "navigate" || acceptHeader.includes("text/html");
+
+  if (isHtmlRequest) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          return response;
+        })
+        .catch(() =>
+          caches.match(event.request).then((cached) => cached || caches.match("/"))
+        )
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) {

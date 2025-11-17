@@ -1,7 +1,7 @@
 {
   "name": "ACSSZ Membership Card",
   "short_name": "ACSSZ Card",
-  "start_url": "/card",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0f172a",
